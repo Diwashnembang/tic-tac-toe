@@ -1,5 +1,5 @@
 //---global varialbles below 
-const gameBoardCellDom=document.querySelector("#gameboard").children; 
+const gameBoardCellDom=Array.from(document.querySelector("#gameboard").children); 
 
 
 //---global variable above
@@ -16,20 +16,36 @@ const gameBoard=(()=>{
 })();
 
 
-const player=()=>{
+function player(choice){
+    
+    const _playerChoice=(cell)=>{
+        row=cell.getAttribute("data-row");
+        column=cell.getAttribute("data-column");
+        gameBoard.board[column][row]=choice;
+        displayController.fillGameboard();
+                  
+    }
+
+
+    gameBoardCellDom.forEach(cell => {
+        cell.addEventListener("click",_playerChoice.bind("",cell))
+    });
+
 
     
+
+    return {}
 }
 
-//-----code below  for manuplating the dom----
-const _gameBoardCellDom=document.querySelector("#gameboard").children; 
 
+
+
+//-----code below  for manuplating the dom----
 const displayController=(()=>{
     const fillGameboard=()=>{
         let column=0;
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
-                console.log(gameBoard.board[i][j]);
                 gameBoardCellDom[column].textContent=gameBoard.board[i][j];
                 column++;                
             }    
@@ -39,14 +55,18 @@ const displayController=(()=>{
 
     return {fillGameboard}
 })();
-    
+
+
+
+
+
 
 //-----above code for dom manuplation-----
 
 
 
 // --- executed codes below---
-
 displayController.fillGameboard();
+const player1=player("X")
 
 // --- executed codes above---
