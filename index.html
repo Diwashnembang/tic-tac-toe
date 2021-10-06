@@ -9,26 +9,36 @@
 </head>
 <body>
     <div id="gamemode">
-        <div id="2player" class="button">
-            <span>2 PLAYER</span>
-        </div>
+        <h1 class="title">CHOOSE GAMEMODE</h1>
+        <div id="options">
+
+            <div id="player" class="button">
+                <span class="text">2 PLAYER</span>
+            </div>
         <div id="bot" class="button">
-            <span>BOT</span>
+            <span class="text">BOT-Easy</span>
+        </div>
+        <div id="god" class="button">
+            <span class="text">BOT-HARD</span>
         </div>
     </div>
-    <div id="gameboard">
-        <div class="cell" data-column="0" data-row="0"></div>
-        <div class="cell" data-column="0" data-row="1"></div>
-        <div class="cell" data-column="0" data-row="2"></div>
-        <div class="cell" data-column="1" data-row="0"></div>
-        <div class="cell" data-column="1" data-row="1"></div>
-        <div class="cell" data-column="1" data-row="2"></div>
-        <div class="cell" data-column="2" data-row="0"></div>
-        <div class="cell" data-column="2" data-row="1"></div>
-        <div class="cell" data-column="2" data-row="2"></div>
-        
-        
     </div>
-</body>
+    <main class="hidden main">
+
+        <div id="gameboard" class="hidden">
+            <div class="cell" data-column="0" data-row="0"></div>
+            <div class="cell" data-column="0" data-row="1"></div>
+            <div class="cell" data-column="0" data-row="2"></div>
+            <div class="cell" data-column="1" data-row="0"></div>
+            <div class="cell" data-column="1" data-row="1"></div>
+            <div class="cell" data-column="1" data-row="2"></div>
+            <div class="cell" data-column="2" data-row="0"></div>
+            <div class="cell" data-column="2" data-row="1"></div>
+            <div class="cell" data-column="2" data-row="2"></div>
+            
+            
+        </div>
+    </main>
+    </body>
 <script src="script.js"></script>
 </html>

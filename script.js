@@ -2,7 +2,9 @@
 const gameBoardCellDom = Array.from(
     document.querySelector("#gameboard").children
 );
-let movesMade = 0;
+const gameBoardDom=document.querySelector(".main");
+const gameModesDom=Array.from(document.querySelector("#options").children)
+const optionsDom=document.querySelector("#gamemode");
 let gameMode = "god";
 
 let score={
@@ -10,7 +12,6 @@ let score={
     O:10,
     tie:0,
 }
-
 let _winner=null;
 //---global variable above
 
@@ -70,22 +71,6 @@ const gameBoard = (() => {
     
     let _gameOver = false;
     // let _winner=null;
-
-    function emptySpaces(){
-        let spaces=[];
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3 ;j++) {
-                if (board[i][j]==="") {
-                    spaces.push({column: board[i],rows: board[j]})
-                    
-                }
-                
-                
-            }
-            
-        }
-        return spaces;
-    }
   
 
     const checkGameOver = () => {
@@ -168,19 +153,7 @@ const gameBoard = (() => {
 
     
         if (_horizonalCheck() || _rightDiagonalCheck() || _verticalCheck() || _leftDiagonalCheck()) {
-            // if (_horizonalCheck()) {
-            //     console.log("hotixonal");
-            // }
-            // if (_rightDiagonalCheck()) {
-            //     console.log(" rightdiagonal check");
-            // }
-            // if (_verticalCheck()) {
-            //     console.log("vertical check");
-            // }
-            // if(_leftDiagonalCheck()){
-            //     console.log("left diagnoal check")
-            // }
-            // console.log("game over");
+
             _gameOver = true;
             return true;
         }
@@ -224,7 +197,6 @@ const gameBoard = (() => {
                 board[player.column][player.row] = "O";
                 _turn = "player1";
             }
-            movesMade++;
             displayController.fillGameboard();
             checkGameOver();
         }
@@ -238,7 +210,6 @@ const gameBoard = (() => {
             if (_turn === "player1") {
                 board[player.column][player.row] = "X";
             }
-            movesMade++;
             displayController.fillGameboard();
             checkGameOver();
             let _time=0.2;
@@ -259,7 +230,6 @@ const gameBoard = (() => {
                 if (_turn === "player1") {
                     board[player.column][player.row] = "X";
                 }
-                movesMade++;
                 displayController.fillGameboard();
                 checkGameOver();
                 let _time=0.2;
@@ -284,7 +254,7 @@ const gameBoard = (() => {
         return { play };
     })();
 
-    return { board, gamePlay, checkGameOver,emptySpaces, _gameOver};
+    return { board, gamePlay,checkGameOver};
 })();
 
 const bot = (() => {
@@ -300,7 +270,7 @@ const bot = (() => {
         return Math.floor(Math.random() * (max - min + 1) + min);
     }
 
-    const choose = () => {
+    const _choose = () => {
         const column = _randomNumber(0, 2);
         const row = _randomNumber(0, 2);
         return { column, row };
@@ -310,14 +280,13 @@ const bot = (() => {
         let _cmp
         let _cmpChoosing = 0
         while(_cmpChoosing<10){ //less than 10 because the are ooly 9 cells otherwise browser will carsh.
-            _cmp=bot.choose();
+            _cmp=_choose();
             if (displayController.avoidMultipleSelection(_cmp.column, _cmp.row)){
                 _cmpChoosing++;
                 continue;
             }
             
             gameBoard.board[_cmp.column][_cmp.row] = "O";
-            movesMade++;
             displayController.fillGameboard();
             gameBoard.checkGameOver();
             _cmpChoosing=10;
@@ -350,7 +319,7 @@ const bot = (() => {
         gameBoard.checkGameOver();
     }
 
-    return { sleep, choose,move,godModeMove};
+    return { sleep,move,godModeMove};
 })();
 
 //-----code below  for manuplating the dom----
@@ -359,7 +328,17 @@ const displayController = (() => {
         let column = 0;
         for (let i = 0; i < 3; i++) {
             for (let j = 0; j < 3; j++) {
-                gameBoardCellDom[column].textContent = gameBoard.board[i][j];
+                switch (gameBoard.board[i][j]) {
+                    case 'X':
+                        gameBoardCellDom[column].setAttribute("style",`background:center url("assets/x.png"); background-size:cover;`)
+                       
+                        break;
+                
+                    case 'O': 
+                    gameBoardCellDom[column].setAttribute("style",`background:center url("assets/o.png"); background-size:cover; `)
+                        break;
+                }
+                // gameBoardCellDom[column].textContent = gameBoard.board[i][j];
                 column++;
             }
         }
@@ -368,7 +347,14 @@ const displayController = (() => {
     const avoidMultipleSelection = (column, row) => {
         if (gameBoard.board[column][row] !== "") return true;
     }; //to avoid selction on already selected cell
-    return { fillGameboard, avoidMultipleSelection };
+
+
+    const showContent=(...nodes)=>{
+        nodes.forEach(node=>{
+            node.classList.toggle("hidden");
+        });
+    }
+    return { fillGameboard, avoidMultipleSelection,showContent };
 })();
 
 //-----above code for dom manuplation-----
@@ -386,6 +372,33 @@ gameBoardCellDom.forEach((cell) => {
     
 });
 });
+
+gameModesDom.forEach(mode=>{
+    mode.addEventListener("click",()=>{
+        selected=mode.textContent.trim().toLocaleLowerCase();
+        switch(selected){
+            case "2 player":
+                gameMode="2player";
+                break;
+            
+            case "bot-easy":
+                gameMode="bot";
+                break;
+
+            case "bot-hard":
+                gameMode="god";
+                break;
+
+            default:
+                return "ERROR WHILE CHOOSING GAMEMODE"
+
+        }
+        displayController.showContent(gameBoardDom,optionsDom);
+    })
+    // console.log(mode)
+})
+
+
 
 // --- main executed codes above---
  

@@ -1,4 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Gemunu+Libre&display=swap');
+
 /* reset */
+
 
 *{
     padding: 0;
@@ -7,18 +10,88 @@
     
 }
 
-#gameboard{
+:root{
+    --gamemodeBackgorundcolor: yellow;
+    --font: 'Gemunu Libre', sans-serif;
+    --borderRadius:0.5rem;
+}
+.hidden{
+    display: none;
+  }
 
+#gameboard{
+    position: absolute;
+    background-color: yellowgreen;
     display: grid;
     grid-template-columns: repeat(3,1fr);
     grid-template-rows: repeat(3,1fr);
-    width: 400px;
-    height: 400px;
+    max-width: 400px;
+    max-height: 400px;
+    min-width: 300px;
+    min-height: 300px;
     border: black solid 1px;
-    margin: 150px auto;
+    top:25%;
+    left:10%;
+    right:10%
+
 }
 
 .cell{
     border: solid black 1px;
 }
 
+#gamemode{
+    height: 100vh;
+    background-color: var(--gamemodeBackgorundcolor);
+}
+
+#options{
+    /* margin-top: 30px; */
+    position: absolute;
+    top: 35% ;
+    left: 25%;
+    right: 25%;
+    border:blue solid 3px;
+    border-radius: var(--borderRadius) ;
+    
+}
+
+.title{
+    position: absolute;
+    top:25%;
+    left: 12%;
+    text-decoration: underline;
+    font-family: var(--font);
+    font-size: 2.8rem;
+}
+
+.text{
+    font-size: 2.6rem;
+    font-family: var(--font);
+}
+
+#player ,#bot ,#god{
+    margin:1rem;
+    width: fit-content;
+}
+
+.button{
+    /* background-color: tomato; */
+    border:black solid 3px;
+    border-radius: var(--borderRadius);
+    text-align: center;
+    
+}
+
+.button:hover{
+    border: red solid 3px;
+    border-radius: var(--borderRadius);
+    font-size: 2.9rem;
+    
+}
+
+main{
+    background-color: yellow;
+    min-height: 100vh;
+    background-size: contain;
+}
