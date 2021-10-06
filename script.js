@@ -3,9 +3,62 @@ const gameBoardCellDom = Array.from(
     document.querySelector("#gameboard").children
 );
 let movesMade = 0;
-let gameMode = "bot";
+let gameMode = "god";
 
+let score={
+    X:-10,
+    O:10,
+    tie:0,
+}
+
+let _winner=null;
 //---global variable above
+
+const minimax=(isMax)=> {
+    gameBoard.checkGameOver();
+    if(gameBoard.checkGameOver()){
+        // console.log(_winner)
+        return score[_winner]
+    }
+    
+    if(isMax){
+        let _bestScore= -Infinity;
+
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if(gameBoard.board[i][j]===""){
+                    gameBoard.board[i][j]="O"
+                    let score=minimax(false);
+                    gameBoard.board[i][j]=""
+                    _bestScore=Math.max(score,_bestScore);
+                }            
+            }
+            
+        }
+        return _bestScore;
+    }else{
+        let _bestScore= Infinity;
+
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if(gameBoard.board[i][j]===""){
+                    gameBoard.board[i][j]="X"
+                    let score=minimax(true);
+                    gameBoard.board[i][j]=""
+                    _bestScore=Math.min(score,_bestScore);
+                }            
+            }
+            
+        }
+        return _bestScore;
+
+    }
+
+}
+
+
+
+
 
 const gameBoard = (() => {
     let board = [
@@ -13,9 +66,30 @@ const gameBoard = (() => {
         ["", "", ""],
         ["", "", ""],
     ];
+    
+    
+    let _gameOver = false;
+    // let _winner=null;
+
+    function emptySpaces(){
+        let spaces=[];
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3 ;j++) {
+                if (board[i][j]==="") {
+                    spaces.push({column: board[i],rows: board[j]})
+                    
+                }
+                
+                
+            }
+            
+        }
+        return spaces;
+    }
+  
 
     const checkGameOver = () => {
-        if (movesMade < 5) return; //5 beeacue game can't be over unless 5 moves are made
+        // if (movesMade < 5) return; //5 beeacue game can't be over unless 5 moves are made
         const _horizonalCheck = () => {
             for (let i = 0; i < 3; i++) {
                 for (let j = 0; j < 1; j++) {
@@ -30,20 +104,45 @@ const gameBoard = (() => {
                         board[i][j] === board[i][j + 1] &&
                         board[i][j + 1] === board[i][j + 2]
                     ) {
+                        _winner=board[i][j]
                         return true;
                     }
                 }
             }
         };
 
-        const _diagonalCheck = () => {
+        const _leftDiagonalCheck = () => {
+            if (board[0][0] ==="" || board[1][1] === ""  || board[2][2]==="") {
+                return ;
+                
+            }
+        
+
             if (
-                (board[0][0] === board[1][1] && board[1][1] === board[2][2]) ||
+                (board[0][0] === board[1][1] && board[1][1] === board[2][2])
+            ) {
+                    _winner=board[0][0];
+                    return true;
+                }
+                
+            }
+        
+
+        const _rightDiagonalCheck = () => {
+            if (board[0][2] ==="" || board[1][1] === ""  || board[2][0]==="") {
+                return false;
+                
+            }
+
+            if (
                 (board[0][2] === board[1][1] && board[1][1] === board[2][0])
             ) {
-                return true;
-            }
-        };
+                    _winner=board[0][2];
+                    
+                    return true;
+                }
+            };
+        
 
         const _verticalCheck = () => {
             for (let i = 0; i < 3; i++) {
@@ -60,31 +159,52 @@ const gameBoard = (() => {
                         board[j][i] === board[j + 1][i] &&
                         board[j + 1][i] === board[j + 2][i]
                     ) {
+                        _winner=board[j][i]
                         return true;
                     }
                 }
             }
         };
 
-        let _gameOver = false;
-        if (_horizonalCheck() || _diagonalCheck() || _verticalCheck()) {
-            if (_horizonalCheck()) {
-                console.log("hotixonal");
-            }
-            if (_diagonalCheck()) {
-                console.log("diagonal check");
-            }
-            if (_verticalCheck()) {
-                console.log("vertical check");
-            }
-            console.log("gameOver");
+    
+        if (_horizonalCheck() || _rightDiagonalCheck() || _verticalCheck() || _leftDiagonalCheck()) {
+            // if (_horizonalCheck()) {
+            //     console.log("hotixonal");
+            // }
+            // if (_rightDiagonalCheck()) {
+            //     console.log(" rightdiagonal check");
+            // }
+            // if (_verticalCheck()) {
+            //     console.log("vertical check");
+            // }
+            // if(_leftDiagonalCheck()){
+            //     console.log("left diagnoal check")
+            // }
+            // console.log("game over");
             _gameOver = true;
-            console.table(board);
+            return true;
         }
-
-        if (movesMade >= 9 && _gameOver === false) {
+        let checkDraw=[];
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if(board[i][j]===""){
+                    checkDraw.push(true)
+                }
+                else{
+                    checkDraw.push(false);
+                }
+            }
+        }
+        // console.log(checkDraw)
+        if (!checkDraw.includes(true)) {//cant make more than 9 move casue 9 cell
             console.log("it's' a draw !!");
+            _winner="tie"
+            _gameOver = true;
+            return true;
         }
+        // console.log(_winner);
+
+
     };
 
     const gamePlay = (() => {
@@ -121,27 +241,33 @@ const gameBoard = (() => {
             movesMade++;
             displayController.fillGameboard();
             checkGameOver();
-            bot.sleep(
-                `let _cmp
-        let _cmpChoosing = 0
-        while(_cmpChoosing<10){ //less than 10 because the are ooly 9 cells otherwise browser will carsh.
-            _cmp=bot.choose();
-            if (displayController.avoidMultipleSelection(_cmp.column, _cmp.row)){
-                _cmpChoosing++;
-                continue;
-            }
-            
-            gameBoard.board[_cmp.column][_cmp.row] = "O";
-            movesMade++;
-            displayController.fillGameboard();
-            gameBoard.checkGameOver();
-            _cmpChoosing=10;
-            
-        }`,
-                0.5
-            );//bot.sleep(code,time in second)for delay 
+            let _time=0.2;
+            bot.sleep(`bot.move()`, _time);//bot.sleep(code,time in second)for delay 
 
             // bot.sleep(2000);
+        }
+
+        function _playWithGod(player) {
+
+            // if(_gameOver) return
+
+            if (
+                displayController.avoidMultipleSelection(player.column, player.row) ===
+                true
+                )
+                return;
+                if (_turn === "player1") {
+                    board[player.column][player.row] = "X";
+                }
+                movesMade++;
+                displayController.fillGameboard();
+                checkGameOver();
+                let _time=0.2;
+                bot.sleep(`godModeMove()`,_time);
+               
+
+            
+
         }
         function play(player) {
             switch (gameMode) {
@@ -150,16 +276,19 @@ const gameBoard = (() => {
 
                 case "bot":
                     _playWithBotLogic(player);
+
+                case "god":
+                    _playWithGod(player);
             }
         }
         return { play };
     })();
 
-    return { board, gamePlay, checkGameOver };
+    return { board, gamePlay, checkGameOver,emptySpaces, _gameOver};
 })();
 
 const bot = (() => {
-    if (gameMode !== "bot") return;
+    // if (gameMode !== "bot") return;
 
     function sleep(code, time) {
         setTimeout(() => {
@@ -177,7 +306,51 @@ const bot = (() => {
         return { column, row };
     };
 
-    return { sleep, choose };
+    const move =()=>{
+        let _cmp
+        let _cmpChoosing = 0
+        while(_cmpChoosing<10){ //less than 10 because the are ooly 9 cells otherwise browser will carsh.
+            _cmp=bot.choose();
+            if (displayController.avoidMultipleSelection(_cmp.column, _cmp.row)){
+                _cmpChoosing++;
+                continue;
+            }
+            
+            gameBoard.board[_cmp.column][_cmp.row] = "O";
+            movesMade++;
+            displayController.fillGameboard();
+            gameBoard.checkGameOver();
+            _cmpChoosing=10;
+            
+        }
+    }
+
+    const godModeMove =()=>{
+        let _bestScore= -Infinity;
+        let _move;
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                if(gameBoard.board[i][j]===""){
+                    gameBoard.board[i][j]="O";
+                    // gameBoard.checkGameOver();
+                    let _score=minimax(false);
+                    gameBoard.board[i][j]="";
+                    if(_score > _bestScore){
+                        // console.log("this is score",_score)
+                         _move={i ,j}
+                        _bestScore=_score;
+                    }
+                }
+                
+            }
+            
+        }
+        gameBoard.board[_move.i][_move.j] = "O";
+        displayController.fillGameboard();
+        gameBoard.checkGameOver();
+    }
+
+    return { sleep, choose,move,godModeMove};
 })();
 
 //-----code below  for manuplating the dom----
@@ -200,14 +373,19 @@ const displayController = (() => {
 
 //-----above code for dom manuplation-----
 
-// --- executed codes below---
-displayController.fillGameboard();
+// --- mainexecuted codes below---
 gameBoardCellDom.forEach((cell) => {
     let player = {
         row: cell.getAttribute("data-row"),
         column: cell.getAttribute("data-column"),
     };
-    cell.addEventListener("click", gameBoard.gamePlay.play.bind("", player));
+    cell.addEventListener("click", ()=>{
+        gameBoard.gamePlay.play(player)
+        ;
+
+    
+});
 });
 
-// --- executed codes above---
+// --- main executed codes above---
+ 
