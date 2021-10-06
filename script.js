@@ -2,24 +2,29 @@
 const gameBoardCellDom = Array.from(
     document.querySelector("#gameboard").children
 );
-const gameBoardDom=document.querySelector(".main");
+const mainDom=document.querySelector(".main");
 const gameModesDom=Array.from(document.querySelector("#options").children)
 const optionsDom=document.querySelector("#gamemode");
+const retryDom=document.querySelector("#retry");
+const restartDom=document.querySelector("#restart");
+const winnerMessageDom=document.querySelector("#winnerMessage");
 let gameMode = "god";
+
+
 
 let score={
     X:-10,
     O:10,
     tie:0,
 }
-let _winner=null;
+let winner=null;
 //---global variable above
 
 const minimax=(isMax)=> {
     gameBoard.checkGameOver();
     if(gameBoard.checkGameOver()){
         // console.log(_winner)
-        return score[_winner]
+        return score[winner]
     }
     
     if(isMax){
@@ -69,7 +74,7 @@ const gameBoard = (() => {
     ];
     
     
-    let _gameOver = false;
+    let gameOver = false;
     // let _winner=null;
   
 
@@ -89,7 +94,7 @@ const gameBoard = (() => {
                         board[i][j] === board[i][j + 1] &&
                         board[i][j + 1] === board[i][j + 2]
                     ) {
-                        _winner=board[i][j]
+                        winner=board[i][j]
                         return true;
                     }
                 }
@@ -106,7 +111,7 @@ const gameBoard = (() => {
             if (
                 (board[0][0] === board[1][1] && board[1][1] === board[2][2])
             ) {
-                    _winner=board[0][0];
+                    winner=board[0][0];
                     return true;
                 }
                 
@@ -122,7 +127,7 @@ const gameBoard = (() => {
             if (
                 (board[0][2] === board[1][1] && board[1][1] === board[2][0])
             ) {
-                    _winner=board[0][2];
+                    winner=board[0][2];
                     
                     return true;
                 }
@@ -154,7 +159,8 @@ const gameBoard = (() => {
     
         if (_horizonalCheck() || _rightDiagonalCheck() || _verticalCheck() || _leftDiagonalCheck()) {
 
-            _gameOver = true;
+            gameOver = true;
+                displayController.showContent(retryDom,restartDom)
             return true;
         }
         let checkDraw=[];
@@ -171,8 +177,13 @@ const gameBoard = (() => {
         // console.log(checkDraw)
         if (!checkDraw.includes(true)) {//cant make more than 9 move casue 9 cell
             console.log("it's' a draw !!");
-            _winner="tie"
-            _gameOver = true;
+            winner="tie"
+            gameOver = true;
+    
+            
+                displayController.showContent(retryDom,restartDom)
+                playedOnce=true;
+            
             return true;
         }
         // console.log(_winner);
@@ -198,7 +209,7 @@ const gameBoard = (() => {
                 _turn = "player1";
             }
             displayController.fillGameboard();
-            checkGameOver();
+            if(checkGameOver()) displayController.displayWinner();
         }
 
         function _playWithBotLogic(player) {
@@ -211,7 +222,11 @@ const gameBoard = (() => {
                 board[player.column][player.row] = "X";
             }
             displayController.fillGameboard();
-            checkGameOver();
+            if(checkGameOver()){
+            displayController.displayWinner();
+                return;
+            }
+            // if(checkGameOver()) return;
             let _time=0.2;
             bot.sleep(`bot.move()`, _time);//bot.sleep(code,time in second)for delay 
 
@@ -231,7 +246,10 @@ const gameBoard = (() => {
                     board[player.column][player.row] = "X";
                 }
                 displayController.fillGameboard();
-                checkGameOver();
+                if(checkGameOver()){
+                    displayController.displayWinner();
+                    return;
+                } ;
                 let _time=0.2;
                 bot.sleep(`godModeMove()`,_time);
                
@@ -254,7 +272,23 @@ const gameBoard = (() => {
         return { play };
     })();
 
-    return { board, gamePlay,checkGameOver};
+    function retry() {
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                board[i][j]=""
+            }
+        }
+        displayController.fillGameboard()
+        winnerMessageDom.textContent=""
+        displayController.showContent(retryDom,restartDom)
+    }
+
+    function restart(){
+        displayController.showContent(mainDom,optionsDom)
+        retry();
+    }
+
+    return { board, gamePlay,checkGameOver,retry,restart};
 })();
 
 const bot = (() => {
@@ -288,7 +322,7 @@ const bot = (() => {
             
             gameBoard.board[_cmp.column][_cmp.row] = "O";
             displayController.fillGameboard();
-            gameBoard.checkGameOver();
+         if(gameBoard.checkGameOver()) displayController.displayWinner();
             _cmpChoosing=10;
             
         }
@@ -314,10 +348,19 @@ const bot = (() => {
             }
             
         }
-        gameBoard.board[_move.i][_move.j] = "O";
+        if(_move!==undefined){
+
+            gameBoard.board[_move.i][_move.j] = "O";
+        }
         displayController.fillGameboard();
-        gameBoard.checkGameOver();
+        if(gameBoard.checkGameOver()){
+            displayController.displayWinner();
+            return;
+        };
     }
+
+
+    
 
     return { sleep,move,godModeMove};
 })();
@@ -337,8 +380,9 @@ const displayController = (() => {
                     case 'O': 
                     gameBoardCellDom[column].setAttribute("style",`background:center url("assets/o.png"); background-size:cover; `)
                         break;
+                    default:
+                        gameBoardCellDom[column].setAttribute("style",`background:none `)
                 }
-                // gameBoardCellDom[column].textContent = gameBoard.board[i][j];
                 column++;
             }
         }
@@ -354,7 +398,21 @@ const displayController = (() => {
             node.classList.toggle("hidden");
         });
     }
-    return { fillGameboard, avoidMultipleSelection,showContent };
+
+    function displayWinner() {
+        if(winner==="X"){
+            winnerMessageDom.textContent='X WIN!!'
+        }else if(winner==="O"){
+                winnerMessageDom.textContent='O WINS!!'
+        }else if(winner==="tie"){
+            winnerMessageDom.textContent="IT'S A DRAW!!"
+        }else{
+            winnerMessageDom.textContent=""
+        }
+        winnerMessageDom.classList.add("title")
+        winnerMessageDom.setAttribute("style","top:1rem;")
+    } 
+    return { fillGameboard, avoidMultipleSelection,showContent,displayWinner };
 })();
 
 //-----above code for dom manuplation-----
@@ -366,6 +424,7 @@ gameBoardCellDom.forEach((cell) => {
         column: cell.getAttribute("data-column"),
     };
     cell.addEventListener("click", ()=>{
+        if(gameBoard.checkGameOver()) return;
         gameBoard.gamePlay.play(player)
         ;
 
@@ -393,11 +452,18 @@ gameModesDom.forEach(mode=>{
                 return "ERROR WHILE CHOOSING GAMEMODE"
 
         }
-        displayController.showContent(gameBoardDom,optionsDom);
+        displayController.showContent(mainDom,optionsDom);
     })
     // console.log(mode)
 })
 
+retryDom.addEventListener("click",()=>{
+    gameBoard.retry();
+})
+
+restartDom.addEventListener("click",()=>{
+    gameBoard.restart();
+})
 
 
 // --- main executed codes above---

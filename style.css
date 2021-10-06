@@ -49,20 +49,25 @@
     /* margin-top: 30px; */
     position: absolute;
     top: 35% ;
-    left: 25%;
-    right: 25%;
+    left: 21.5%;
+    right: 21.5%;
     border:blue solid 3px;
     border-radius: var(--borderRadius) ;
+    /* width:; */
     
 }
 
 .title{
+    border-top:black solid 1.9px;
+    border-bottom:black solid 1.9px;
     position: absolute;
-    top:25%;
-    left: 12%;
-    text-decoration: underline;
+    top:22%;
+    /* left: 8.4%; */
+    /* text-decoration: underline; */
     font-family: var(--font);
-    font-size: 2.8rem;
+    font-size: 2.4rem;
+    width:100%;
+    text-align: center;
 }
 
 .text{
@@ -72,7 +77,6 @@
 
 #player ,#bot ,#god{
     margin:1rem;
-    width: fit-content;
 }
 
 .button{
@@ -80,6 +84,7 @@
     border:black solid 3px;
     border-radius: var(--borderRadius);
     text-align: center;
+    width:fit-content;
     
 }
 
@@ -93,5 +98,27 @@
 main{
     background-color: yellow;
     min-height: 100vh;
-    background-size: contain;
+    
+}
+
+#gameover{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size:2.6rem;
+    /* width: 50%; */
+    top:calc(25% + 350px);
+    left:21.5%;
+    right: 21.5%;
+    /* border: black 1px solid; */
+    /* padding-right: 15%; */
+    
+}
+
+
+#gameover .button{
+    margin: 6px;
+    
+    
 }
