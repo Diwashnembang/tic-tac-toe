@@ -20,10 +20,10 @@ let score={
 let winner=null;
 //---global variable above
 
-const minimax=(isMax)=> {
-    gameBoard.checkGameOver();
-    if(gameBoard.checkGameOver()){
-        // console.log(_winner)
+const minimax=(isMax,depth)=> {
+    let _over=gameBoard.checkGameOver();
+    if(_over){
+        // console.log(winner)
         return score[winner]
     }
     
@@ -34,14 +34,14 @@ const minimax=(isMax)=> {
             for (let j = 0; j < 3; j++) {
                 if(gameBoard.board[i][j]===""){
                     gameBoard.board[i][j]="O"
-                    let score=minimax(false);
+                    let score=minimax(false,depth+1);
                     gameBoard.board[i][j]=""
                     _bestScore=Math.max(score,_bestScore);
                 }            
             }
             
         }
-        return _bestScore;
+        return _bestScore - depth;
     }else{
         let _bestScore= Infinity;
 
@@ -49,14 +49,14 @@ const minimax=(isMax)=> {
             for (let j = 0; j < 3; j++) {
                 if(gameBoard.board[i][j]===""){
                     gameBoard.board[i][j]="X"
-                    let score=minimax(true);
+                    let score=minimax(true,depth+1);
                     gameBoard.board[i][j]=""
                     _bestScore=Math.min(score,_bestScore);
                 }            
             }
             
         }
-        return _bestScore;
+        return _bestScore + depth;
 
     }
 
@@ -149,7 +149,7 @@ const gameBoard = (() => {
                         board[j][i] === board[j + 1][i] &&
                         board[j + 1][i] === board[j + 2][i]
                     ) {
-                        _winner=board[j][i]
+                        winner=board[j][i]
                         return true;
                     }
                 }
@@ -160,7 +160,6 @@ const gameBoard = (() => {
         if (_horizonalCheck() || _rightDiagonalCheck() || _verticalCheck() || _leftDiagonalCheck()) {
 
             gameOver = true;
-                displayController.showContent(retryDom,restartDom)
             return true;
         }
         let checkDraw=[];
@@ -174,19 +173,18 @@ const gameBoard = (() => {
                 }
             }
         }
-        // console.log(checkDraw)
+     
         if (!checkDraw.includes(true)) {//cant make more than 9 move casue 9 cell
             console.log("it's' a draw !!");
             winner="tie"
             gameOver = true;
     
             
-                displayController.showContent(retryDom,restartDom)
-                playedOnce=true;
+               
             
             return true;
         }
-        // console.log(_winner);
+     
 
 
     };
@@ -209,7 +207,10 @@ const gameBoard = (() => {
                 _turn = "player1";
             }
             displayController.fillGameboard();
-            if(checkGameOver()) displayController.displayWinner();
+            if(checkGameOver()) {
+                displayController.displayWinner();
+                displayController.showContent(retryDom,restartDom);
+            }
         }
 
         function _playWithBotLogic(player) {
@@ -224,6 +225,7 @@ const gameBoard = (() => {
             displayController.fillGameboard();
             if(checkGameOver()){
             displayController.displayWinner();
+            displayController.showContent(retryDom,restartDom)
                 return;
             }
             // if(checkGameOver()) return;
@@ -248,6 +250,7 @@ const gameBoard = (() => {
                 displayController.fillGameboard();
                 if(checkGameOver()){
                     displayController.displayWinner();
+                    displayController.showContent(retryDom,restartDom)
                     return;
                 } ;
                 let _time=0.2;
@@ -280,7 +283,7 @@ const gameBoard = (() => {
         }
         displayController.fillGameboard()
         winnerMessageDom.textContent=""
-        displayController.showContent(retryDom,restartDom)
+        displayController.showContent(retryDom,restartDom);
     }
 
     function restart(){
@@ -336,10 +339,9 @@ const bot = (() => {
                 if(gameBoard.board[i][j]===""){
                     gameBoard.board[i][j]="O";
                     // gameBoard.checkGameOver();
-                    let _score=minimax(false);
+                    let _score=minimax(false,0);
                     gameBoard.board[i][j]="";
                     if(_score > _bestScore){
-                        // console.log("this is score",_score)
                          _move={i ,j}
                         _bestScore=_score;
                     }
@@ -355,6 +357,7 @@ const bot = (() => {
         displayController.fillGameboard();
         if(gameBoard.checkGameOver()){
             displayController.displayWinner();
+            displayController.showContent(retryDom,restartDom)
             return;
         };
     }
