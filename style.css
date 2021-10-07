@@ -83,7 +83,8 @@
     border:black solid 3px;
     border-radius: var(--borderRadius);
     text-align: center;
-    width:100%;
+    max-width:100%;
+    
 
     
 }
@@ -122,3 +123,52 @@ main{
     
     
 }
+
+@media screen and (min-width:500px){
+    #gameboard{
+        left:20%;
+        right:20%
+    }
+
+    #options{
+        left:20%;
+        right:20%
+    }
+    
+}
+
+@media screen and (min-width:720px){
+    #gameboard{
+        left:25.9%;
+        right:25.9%;
+    }
+    .button{
+        width: 250px;
+    }
+
+    #gameover{
+        left:35%;
+        right:35%;
+    }
+    #options{
+        left:35%;
+        right:35%;
+    }
+}
+
+@media screen and (min-width:900px){
+    #gameboard{
+        left:35%;
+        right:20%
+    }
+    #gameover{
+        left:40%;
+        right:35%;
+    }
+    #options{
+        left:40%;
+        right:35%;
+    }
+    
+}
+
